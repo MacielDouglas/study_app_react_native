@@ -39,6 +39,22 @@ export default function WelcomeIntroScreen() {
           >
             {item.description}
           </Text>
+          <Text
+            style={[
+              commonStyles.description,
+              { fontFamily: "Nunito_400Regular" },
+            ]}
+          >
+            {item.sortDescription}
+          </Text>
+          <Text
+            style={[
+              commonStyles.description,
+              { fontFamily: "Nunito_400Regular" },
+            ]}
+          >
+            {item.sortDescription2}
+          </Text>
         </View>
       </View>
     </LinearGradient>
@@ -55,14 +71,14 @@ export default function WelcomeIntroScreen() {
         router.push("/login");
       }}
       renderNextButton={() => (
-        <View style={[commonStyles.buttonContainer, { paddingBottom: 20 }]}>
+        <View style={styles.welcomeButtonStyle}>
           <Text style={[styles.buttonText, { fontFamily: "Nunito_700Bold" }]}>
             Next
           </Text>
         </View>
       )}
       renderDoneButton={() => (
-        <View style={commonStyles.buttonContainer}>
+        <View style={styles.welcomeButtonStyle}>
           <Text style={[styles.buttonText, { fontFamily: "Nunito_700Bold" }]}>
             Done
           </Text>
@@ -75,7 +91,3 @@ export default function WelcomeIntroScreen() {
     />
   );
 }
-
-// const styles = StyleSheet.create({
-//   slideImage: {},
-// });

@@ -22,7 +22,7 @@ export const commonStyles = StyleSheet.create({
     marginHorizontal: 5,
   },
   dotStyle: {
-    backgroundColor: "#2467EC",
+    backgroundColor: "#C6C7CC",
     width: responsiveWidth(2.5),
     height: responsiveWidth(2.5),
     borderRadius: 5,
