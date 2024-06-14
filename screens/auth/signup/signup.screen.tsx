@@ -31,7 +31,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { commonStyles } from "@/styles/common/common.styles";
 import { router } from "expo-router";
 
-export default function LoginScreen() {
+export default function SignUpScreen() {
   let [fontsLoaded, fontError] = useFonts({
     Nunito_400Regular,
     Nunito_500Medium,
@@ -85,7 +85,9 @@ export default function LoginScreen() {
     }
   };
 
-  const handleSignIn = () => {};
+  const handleSignIn = () => {
+    router.push("/(routes)/verifyAccount");
+  };
 
   if (!fontsLoaded && !fontError) return null;
   return (
@@ -96,13 +98,13 @@ export default function LoginScreen() {
       <ScrollView>
         <Image
           style={styles.signInImage}
-          source={require("@/assets/sign-in/sign_in.png")}
+          source={require("@/assets/sign-up/sign-up.png")}
         />
         <Text style={[styles.welcomeText, { fontFamily: "Raleway_700Bold" }]}>
-          Welcome Back!
+          Let's get started!
         </Text>
         <Text style={styles.learningText}>
-          Login to your existing account of Becodemy
+          Create a account to Becodemy to get all features
         </Text>
         <View style={styles.inputContainer}>
           <View>
@@ -165,18 +167,7 @@ export default function LoginScreen() {
               </View>
             )}
           </View>
-          <TouchableOpacity
-            onPress={() => router.push("/(routes)/forgot-password")}
-          >
-            <Text
-              style={[
-                styles.forgotSection,
-                { fontFamily: "Nunito_600SemiBold" },
-              ]}
-            >
-              Forgot Password?
-            </Text>
-          </TouchableOpacity>
+
           <TouchableOpacity
             style={{
               padding: 16,
@@ -198,7 +189,7 @@ export default function LoginScreen() {
                   fontFamily: "Raleway_700Bold",
                 }}
               >
-                Sign In
+                Sign Up
               </Text>
             )}
           </TouchableOpacity>
@@ -220,7 +211,7 @@ export default function LoginScreen() {
           </View>
           <View style={styles.signUpRedirect}>
             <Text style={{ fontSize: 18, fontFamily: "Raleway_600SemiBold" }}>
-              Don't have an account?
+              Already have an account?
             </Text>
             <TouchableOpacity onPress={() => router.push("/(routes)/sign-up")}>
               <Text
@@ -231,7 +222,7 @@ export default function LoginScreen() {
                   marginLeft: 5,
                 }}
               >
-                Sign Up
+                Sign In
               </Text>
             </TouchableOpacity>
           </View>
