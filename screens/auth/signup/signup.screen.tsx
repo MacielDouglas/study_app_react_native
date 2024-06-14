@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import {
+  AntDesign,
   Entypo,
   FontAwesome,
   Fontisto,
@@ -44,6 +45,7 @@ export default function SignUpScreen() {
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [buttonSpinner, setButtonSpinner] = useState(false);
   const [userInfo, setUserInfo] = useState({
+    name: "",
     email: "",
     password: "",
   });
@@ -107,6 +109,23 @@ export default function SignUpScreen() {
           Create a account to Becodemy to get all features
         </Text>
         <View style={styles.inputContainer}>
+          <View>
+            <TextInput
+              style={[styles.input, { paddingLeft: 40, marginBottom: -12 }]}
+              keyboardType="email-address"
+              value={userInfo.name}
+              placeholder="Fulano de Tal"
+              onChangeText={(value) =>
+                setUserInfo({ ...userInfo, name: value })
+              }
+            />
+            <AntDesign
+              style={{ position: "absolute", left: 26, top: 14 }}
+              name="user"
+              size={20}
+              color={"#A1A1A1"}
+            />
+          </View>
           <View>
             <TextInput
               style={[styles.input, { paddingLeft: 40 }]}
@@ -213,7 +232,7 @@ export default function SignUpScreen() {
             <Text style={{ fontSize: 18, fontFamily: "Raleway_600SemiBold" }}>
               Already have an account?
             </Text>
-            <TouchableOpacity onPress={() => router.push("/(routes)/sign-up")}>
+            <TouchableOpacity onPress={() => router.push("/(routes)/login")}>
               <Text
                 style={{
                   fontSize: 18,
