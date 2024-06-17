@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,51 +8,42 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
 } from "react-native";
-import {
-  AntDesign,
-  Entypo,
-  FontAwesome,
-  Fontisto,
-  Ionicons,
-  SimpleLineIcons,
-} from "@expo/vector-icons";
-import {
-  useFonts,
-  Raleway_600SemiBold,
-  Raleway_700Bold,
-} from "@expo-google-fonts/raleway";
-import {
-  Nunito_400Regular,
-  Nunito_500Medium,
-  Nunito_600SemiBold,
-  Nunito_700Bold,
-} from "@expo-google-fonts/nunito";
-import { useState } from "react";
+import { Fontisto, Ionicons, SimpleLineIcons } from "@expo/vector-icons";
+import { useFonts, Raleway_700Bold } from "@expo-google-fonts/raleway";
+import { Nunito_400Regular } from "@expo-google-fonts/nunito";
 import { LinearGradient } from "expo-linear-gradient";
 import { commonStyles } from "@/styles/common/common.styles";
+import { useMutation } from "@apollo/client";
+import { ApolloError } from "@apollo/client";
+import { NEW_USER } from "@/graphql/mutation/user.mutation";
+import { Entypo } from "@expo/vector-icons";
+import { FontAwesome } from "@expo/vector-icons";
 import { router } from "expo-router";
 
 export default function SignUpScreen() {
-  let [fontsLoaded, fontError] = useFonts({
+  const [newUser, { loading, error }] = useMutation(NEW_USER);
+
+  const [fontsLoaded] = useFonts({
     Nunito_400Regular,
-    Nunito_500Medium,
-    Nunito_600SemiBold,
-    Nunito_700Bold,
-    Raleway_600SemiBold,
     Raleway_700Bold,
   });
 
   const [isPasswordVisible, setPasswordVisible] = useState(false);
-  const [buttonSpinner, setButtonSpinner] = useState(false);
   const [userInfo, setUserInfo] = useState({
     name: "",
     email: "",
     password: "",
+    username: "",
+    profilePicture: "https://cdn-icons-png.flaticon.com/512/9187/9187604.png",
   });
-  const [required, setRequired] = useState("");
-  const [error, setError] = useState({
+  const [allErrors, setAllErrors] = useState({
     password: "",
+    email: "",
+    submitError: error,
   });
 
   const handlePasswordValidation = (value: string) => {
@@ -61,193 +53,252 @@ export default function SignUpScreen() {
     const passwordSixValue = /(?=.{6,})/;
 
     if (!passwordSpecialCharacters.test(password)) {
-      setError({
-        ...error,
-        password: "Write at least one special character",
+      setAllErrors({
+        ...allErrors,
+        password: "Write at least one special character ! @ # $ & *",
       });
       setUserInfo({ ...userInfo, password: "" });
     } else if (!passwordOneNumber.test(password)) {
-      setError({
-        ...error,
+      setAllErrors({
+        ...allErrors,
         password: "Write at least one number",
       });
       setUserInfo({ ...userInfo, password: "" });
     } else if (!passwordSixValue.test(password)) {
-      setError({
-        ...error,
+      setAllErrors({
+        ...allErrors,
         password: "Write at least 6 characters",
       });
       setUserInfo({ ...userInfo, password: "" });
     } else {
-      setError({
-        ...error,
+      setAllErrors({
+        ...allErrors,
         password: "",
       });
-      setUserInfo({ ...userInfo, password: "" });
+      setUserInfo({ ...userInfo, password: password });
+    }
+  };
+  const handleEmailValidation = (value: string) => {
+    const email = value;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      setAllErrors({
+        ...allErrors,
+        email: "Necessário um email válido, tipo: email@email.com",
+      });
+    } else {
+      setAllErrors({
+        ...allErrors,
+        email: "",
+      });
+    }
+    setUserInfo({ ...userInfo, email: email.toLowerCase() });
+  };
+
+  const handleSignIn = async () => {
+    try {
+      const username = userInfo.email.toLowerCase().split("@")[0];
+      const updatedUserInfo = { ...userInfo, username };
+      setUserInfo(updatedUserInfo);
+
+      await newUser({
+        variables: {
+          user: updatedUserInfo,
+        },
+      });
+      Alert.alert(
+        `Seja bem vindo ${updatedUserInfo.name}, faça login para começar.`
+      );
+      router.push("/(routes)/login");
+      // router.push("/(routes)/verifyAccount");
+    } catch (error: ApolloError | any) {
+      if (error.graphQLErrors && error.graphQLErrors.length > 0) {
+        Alert.alert("Error", error.graphQLErrors[0].message);
+      } else if (error.networkError) {
+        Alert.alert("Error", "Network error. Please try again later.");
+      } else {
+        Alert.alert("Error", "An error occurred. Please try again later.");
+      }
     }
   };
 
-  const handleSignIn = () => {
-    router.push("/(routes)/verifyAccount");
-  };
+  if (!fontsLoaded) return null;
 
-  if (!fontsLoaded && !fontError) return null;
   return (
-    <LinearGradient
-      colors={["#E5ECF9", "#F6F7F9"]}
-      style={{ flex: 1, paddingTop: 20 }}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
     >
-      <ScrollView>
-        <Image
-          style={styles.signInImage}
-          source={require("@/assets/sign-up/sign-up.png")}
-        />
-        <Text style={[styles.welcomeText, { fontFamily: "Raleway_700Bold" }]}>
-          Let's get started!
-        </Text>
-        <Text style={styles.learningText}>
-          Create a account to Becodemy to get all features
-        </Text>
-        <View style={styles.inputContainer}>
-          <View>
-            <TextInput
-              style={[styles.input, { paddingLeft: 40, marginBottom: -12 }]}
-              keyboardType="email-address"
-              value={userInfo.name}
-              placeholder="Fulano de Tal"
-              onChangeText={(value) =>
-                setUserInfo({ ...userInfo, name: value })
-              }
-            />
-            <AntDesign
-              style={{ position: "absolute", left: 26, top: 14 }}
-              name="user"
-              size={20}
-              color={"#A1A1A1"}
-            />
-          </View>
-          <View>
-            <TextInput
-              style={[styles.input, { paddingLeft: 40 }]}
-              keyboardType="email-address"
-              value={userInfo.email}
-              placeholder="email@fulano.com.br"
-              onChangeText={(value) =>
-                setUserInfo({ ...userInfo, email: value })
-              }
-            />
-            <Fontisto
-              style={{ position: "absolute", left: 26, top: 17.8 }}
-              name="email"
-              size={20}
-              color={"#A1A1A1"}
-            />
-            {required && (
-              <View style={commonStyles.errorContainer}>
-                <Entypo name="cross" size={18} color={"red"} />
-              </View>
-            )}
-            <View style={{ marginTop: 15 }}>
+      <LinearGradient
+        colors={["#E5ECF9", "#F6F7F9"]}
+        style={{ flex: 1, paddingTop: 20 }}
+      >
+        <ScrollView>
+          <Image
+            style={styles.signInImage}
+            source={require("@/assets/sign-up/sign-up.png")}
+          />
+          <Text style={[styles.welcomeText, { fontFamily: "Raleway_700Bold" }]}>
+            Let's get started!
+          </Text>
+          <Text style={styles.learningText}>
+            Create an account to Becodemy to get all features
+          </Text>
+          <View style={styles.inputContainer}>
+            <View>
               <TextInput
-                style={commonStyles.input}
+                style={[styles.input, { paddingLeft: 40, marginBottom: -12 }]}
                 keyboardType="default"
-                secureTextEntry={!isPasswordVisible}
-                placeholder="********"
-                defaultValue=""
-                onChangeText={handlePasswordValidation}
+                value={userInfo.name}
+                placeholder="Seu nome"
+                placeholderTextColor="#a9a9a9"
+                onChangeText={(value) =>
+                  setUserInfo({ ...userInfo, name: value })
+                }
               />
-              <TouchableOpacity
-                style={styles.visibleIcon}
-                onPress={() => setPasswordVisible(!isPasswordVisible)}
-              >
-                {isPasswordVisible ? (
-                  <Ionicons
-                    name="eye-off-outline"
-                    size={23}
-                    color={"#747474"}
-                  />
-                ) : (
-                  <Ionicons name="eye-outline" size={23} color={"#747474"} />
-                )}
-              </TouchableOpacity>
-              <SimpleLineIcons
-                style={styles.icon2}
-                name="lock"
+              <FontAwesome
+                style={{ position: "absolute", left: 26, top: 14 }}
+                name="user"
                 size={20}
                 color={"#A1A1A1"}
               />
             </View>
-            {error.password && (
-              <View style={[commonStyles.errorContainer, { top: 145 }]}>
-                <Entypo name="cross" size={18} color={"red"} />
-                <Text style={{ color: "red", fontSize: 11, marginTop: -1 }}>
-                  {error.password}
-                </Text>
+            <View
+              style={
+                allErrors.email ? { marginBottom: 15 } : { marginBottom: 0 }
+              }
+            >
+              <TextInput
+                style={[styles.input, { paddingLeft: 40 }]}
+                keyboardType="email-address"
+                value={userInfo.email}
+                autoCapitalize="none"
+                placeholder="Seu email"
+                placeholderTextColor="#a9a9a9"
+                onChangeText={handleEmailValidation}
+              />
+              <Fontisto
+                style={{ position: "absolute", left: 26, top: 17.8 }}
+                name="email"
+                size={20}
+                color={"#A1A1A1"}
+              />
+              {allErrors.email && (
+                <View style={[commonStyles.errorContainer, { top: 62 }]}>
+                  <Entypo name="cross" size={18} color={"red"} />
+                  <Text style={{ color: "red", fontSize: 11, marginTop: -1 }}>
+                    {allErrors.email}
+                  </Text>
+                </View>
+              )}
+            </View>
+            <View style={{ marginTop: -10 }}>
+              <View>
+                <TextInput
+                  style={commonStyles.input}
+                  keyboardType="default"
+                  secureTextEntry={!isPasswordVisible}
+                  placeholder="********"
+                  placeholderTextColor="#a9a9a9"
+                  defaultValue=""
+                  onChangeText={handlePasswordValidation}
+                />
+                <TouchableOpacity
+                  style={styles.visibleIcon}
+                  onPress={() => setPasswordVisible(!isPasswordVisible)}
+                >
+                  {isPasswordVisible ? (
+                    <Ionicons
+                      name="eye-off-outline"
+                      size={23}
+                      color={"#747474"}
+                    />
+                  ) : (
+                    <Ionicons name="eye-outline" size={23} color={"#747474"} />
+                  )}
+                </TouchableOpacity>
+                <SimpleLineIcons
+                  style={styles.icon2}
+                  name="lock"
+                  size={20}
+                  color={"#A1A1A1"}
+                />
               </View>
-            )}
-          </View>
+              {allErrors.password && (
+                <View style={[commonStyles.errorContainer, { top: 70 }]}>
+                  <Entypo name="cross" size={18} color={"red"} />
+                  <Text style={{ color: "red", fontSize: 11, marginTop: -1 }}>
+                    {allErrors.password}
+                  </Text>
+                </View>
+              )}
+            </View>
 
-          <TouchableOpacity
-            style={{
-              padding: 16,
-              borderRadius: 8,
-              marginHorizontal: 16,
-              backgroundColor: "#2467EC",
-              // marginTop: 15,
-            }}
-            onPress={handleSignIn}
-          >
-            {buttonSpinner ? (
-              <ActivityIndicator size="small" color={"white"} />
-            ) : (
-              <Text
-                style={{
-                  color: "white",
-                  textAlign: "center",
-                  fontSize: 16,
-                  fontFamily: "Raleway_700Bold",
-                }}
-              >
-                Sign Up
+            <TouchableOpacity
+              style={{
+                padding: 16,
+                borderRadius: 8,
+                marginHorizontal: 16,
+                backgroundColor:
+                  allErrors.password || allErrors.email ? "#92b2f2" : "#2467EC",
+                marginTop: 15,
+              }}
+              onPress={handleSignIn}
+              disabled={allErrors.password !== "" || allErrors.email !== ""}
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color={"white"} />
+              ) : (
+                <Text
+                  style={{
+                    color: "white",
+                    textAlign: "center",
+                    fontSize: 16,
+                    fontFamily: "Raleway_700Bold",
+                  }}
+                >
+                  Sign Up
+                </Text>
+              )}
+            </TouchableOpacity>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                marginTop: 20,
+                gap: 10,
+              }}
+            >
+              <TouchableOpacity>
+                <FontAwesome name="google" size={30} />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <FontAwesome name="github" size={30} />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.signUpRedirect}>
+              <Text style={{ fontSize: 18, fontFamily: "Raleway_600SemiBold" }}>
+                Already have an account?
               </Text>
-            )}
-          </TouchableOpacity>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-              marginTop: 20,
-              gap: 10,
-            }}
-          >
-            <TouchableOpacity>
-              <FontAwesome name="google" size={30} />
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <FontAwesome name="github" size={30} />
-            </TouchableOpacity>
+              <TouchableOpacity onPress={() => router.push("/(routes)/login")}>
+                <Text
+                  style={{
+                    fontSize: 18,
+                    fontFamily: "Raleway_600SemiBold",
+                    color: "#2467EC",
+                    marginLeft: 5,
+                  }}
+                >
+                  Sign In
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-          <View style={styles.signUpRedirect}>
-            <Text style={{ fontSize: 18, fontFamily: "Raleway_600SemiBold" }}>
-              Already have an account?
-            </Text>
-            <TouchableOpacity onPress={() => router.push("/(routes)/login")}>
-              <Text
-                style={{
-                  fontSize: 18,
-                  fontFamily: "Raleway_600SemiBold",
-                  color: "#2467EC",
-                  marginLeft: 5,
-                }}
-              >
-                Sign In
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
-    </LinearGradient>
+        </ScrollView>
+      </LinearGradient>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -303,7 +354,5 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginHorizontal: 16,
     justifyContent: "center",
-    // marginBottom: 20,
-    // marginTop: 20,
   },
 });

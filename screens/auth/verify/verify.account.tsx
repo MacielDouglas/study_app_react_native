@@ -54,7 +54,7 @@ export default function VerifyAccountScreen() {
       </View>
       <TouchableOpacity onPress={() => router.back()}>
         <Text style={{ fontSize: 20, paddingTop: 20, fontWeight: "500" }}>
-          Go Back to sign in
+          Back to? Sign in
         </Text>
       </TouchableOpacity>
     </View>
@@ -94,4 +94,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     fontSize: 20,
   },
+  loginLink: {
+    flexDirection: "row",
+    marginTop: 30,
+  },
+  loginText: {
+    color: "#3876EE",
+    marginLeft: 5,
+    fontSize: 16,
+  },
+  backText: { fontSize: 16 },
 });

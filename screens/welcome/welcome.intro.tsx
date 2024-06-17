@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image } from "react-native";
+import { View, Text, StyleSheet, Image, ActivityIndicator } from "react-native";
 import { Nunito_400Regular, Nunito_700Bold } from "@expo-google-fonts/nunito";
 import { useFonts, Raleway_700Bold } from "@expo-google-fonts/raleway";
 import { LinearGradient } from "expo-linear-gradient";
@@ -7,6 +7,8 @@ import { onboardingSwiperData } from "@/constants/constants";
 import { commonStyles } from "@/styles/common/common.styles";
 import { router } from "expo-router";
 import { styles } from "@/styles/onboarding/onboarding";
+import { useQuery } from "@apollo/client";
+import { ALL_RECIPES } from "@/graphql/queries/recipe.query";
 
 export default function WelcomeIntroScreen() {
   let [fontsLoaded, fontError] = useFonts({
@@ -14,6 +16,10 @@ export default function WelcomeIntroScreen() {
     Nunito_400Regular,
     Nunito_700Bold,
   });
+
+  const { data, loading, error } = useQuery(ALL_RECIPES);
+  if (loading) return <ActivityIndicator />;
+  if (error) return <Text>Error: {error.message}</Text>;
 
   if (!fontsLoaded && !fontError) return null;
 
@@ -55,6 +61,11 @@ export default function WelcomeIntroScreen() {
           >
             {item.sortDescription2}
           </Text>
+        </View>
+        <View style={{ justifyContent: "center", alignItems: "center" }}>
+          {data.getRecipes.map((recipe: { id: string; title: string }) => (
+            <Text key={recipe.id}>{recipe.title}</Text>
+          ))}
         </View>
       </View>
     </LinearGradient>

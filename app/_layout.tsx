@@ -3,11 +3,10 @@ import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import "react-native-reanimated";
+import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 
-import { View } from "react-native";
-import OnBoarding from "../app/(routes)/onboarding";
+import { Platform, View } from "react-native";
 import { Stack } from "expo-router";
-// import OnBoarding from "./(routes)/onboarding";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -41,6 +40,20 @@ export default function RootLayout() {
   return <RootLayoutNav />;
 }
 
+const getGraphQLUri = () => {
+  if (Platform.OS === "android") {
+    return "http://10.0.2.2:8000/graphql"; // Emulador Android
+  } else {
+    return "https://receitasdecasa.vercel.app/graphql"; // Emulador iOS
+  }
+};
+
+const client = new ApolloClient({
+  uri: getGraphQLUri(),
+  cache: new InMemoryCache(),
+  credentials: "include",
+});
+
 function RootLayoutNav() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   return (
@@ -48,13 +61,15 @@ function RootLayoutNav() {
       {isLoggedIn ? (
         <View></View>
       ) : (
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="(routes)/welcome-intro/index" />
-          <Stack.Screen name="(routes)/login/index" />
-          <Stack.Screen name="(routes)/sign-up/index" />
-          <Stack.Screen name="(routes)/forgot-password/index" />
-        </Stack>
+        <ApolloProvider client={client}>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="(routes)/welcome-intro/index" />
+            <Stack.Screen name="(routes)/login/index" />
+            <Stack.Screen name="(routes)/sign-up/index" />
+            <Stack.Screen name="(routes)/forgot-password/index" />
+          </Stack>
+        </ApolloProvider>
       )}
     </>
   );
