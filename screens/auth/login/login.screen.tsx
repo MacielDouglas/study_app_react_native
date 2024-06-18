@@ -30,6 +30,9 @@ import { useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { commonStyles } from "@/styles/common/common.styles";
 import { router } from "expo-router";
+import { useLazyQuery } from "@apollo/client";
+import { LOGIN_USER } from "@/graphql/queries/user.query";
+import { Toast } from "react-native-toast-notifications";
 
 export default function LoginScreen() {
   let [fontsLoaded, fontError] = useFonts({
@@ -41,6 +44,27 @@ export default function LoginScreen() {
     Raleway_700Bold,
   });
 
+  const [loginQuery, { loading, error, data }] = useLazyQuery(LOGIN_USER, {
+    onError: (error) => {
+      console.error("ApolloError: ", error.message);
+      Toast.show(error.message, {
+        type: "danger",
+        placement: "top",
+        duration: 5000,
+        animationType: "zoom-in",
+      });
+    },
+    onCompleted: (data) => {
+      Toast.show(`Bem-vindo(a) ${data.loginUser.name}.`, {
+        type: "success",
+        placement: "top",
+        duration: 4000,
+        animationType: "slide-in",
+      });
+      console.log("Login Successful: ", data);
+    },
+  });
+
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [buttonSpinner, setButtonSpinner] = useState(false);
   const [userInfo, setUserInfo] = useState({
@@ -48,46 +72,78 @@ export default function LoginScreen() {
     password: "",
   });
   const [required, setRequired] = useState("");
-  const [error, setError] = useState({
+  const [errorMessages, setErrorMessages] = useState({
     password: "",
+    email: "",
+    submitError: error,
   });
 
   const handlePasswordValidation = (value: string) => {
     const password = value;
-    const passwordSpecialCharacters = /(?=.*[!@#$&*])/;
     const passwordOneNumber = /(?=.*[0-9])/;
     const passwordSixValue = /(?=.{6,})/;
 
-    if (!passwordSpecialCharacters.test(password)) {
-      setError({
-        ...error,
-        password: "Write at least one special character",
-      });
-      setUserInfo({ ...userInfo, password: "" });
-    } else if (!passwordOneNumber.test(password)) {
-      setError({
-        ...error,
+    if (!passwordOneNumber.test(password)) {
+      setErrorMessages({
+        ...errorMessages,
         password: "Write at least one number",
       });
       setUserInfo({ ...userInfo, password: "" });
     } else if (!passwordSixValue.test(password)) {
-      setError({
-        ...error,
+      setErrorMessages({
+        ...errorMessages,
         password: "Write at least 6 characters",
       });
       setUserInfo({ ...userInfo, password: "" });
     } else {
-      setError({
-        ...error,
+      setErrorMessages({
+        ...errorMessages,
         password: "",
       });
-      setUserInfo({ ...userInfo, password: "" });
+      setUserInfo({ ...userInfo, password: password });
     }
   };
 
-  const handleSignIn = () => {};
+  const handleEmailValidation = (value: string) => {
+    const email = value;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      setErrorMessages({
+        ...errorMessages,
+        email: "Insira um email válido, por exemplo: email@email.com",
+      });
+    } else {
+      setErrorMessages({
+        ...errorMessages,
+        email: "",
+      });
+    }
+    setUserInfo({ ...userInfo, email: email.toLowerCase() });
+  };
+
+  const handleSignIn = () => {
+    if (!userInfo.email || !userInfo.password) {
+      setRequired("Please fill in all fields.");
+      return;
+    }
+
+    setRequired("");
+    setButtonSpinner(true);
+
+    loginQuery({
+      variables: {
+        email: userInfo.email,
+        password: userInfo.password,
+      },
+    }).finally(() => {
+      setButtonSpinner(false);
+      router.push("/");
+    });
+  };
 
   if (!fontsLoaded && !fontError) return null;
+
   return (
     <LinearGradient
       colors={["#E5ECF9", "#F6F7F9"]}
@@ -105,15 +161,21 @@ export default function LoginScreen() {
           Login to your existing account of Becodemy
         </Text>
         <View style={styles.inputContainer}>
-          <View>
+          <View style={{ marginBottom: 10 }}>
             <TextInput
-              style={[styles.input, { paddingLeft: 40 }]}
+              style={[
+                styles.input,
+                { paddingLeft: 40 } && errorMessages.email
+                  ? { marginBottom: 15 }
+                  : { marginBottom: 0 },
+              ]}
               keyboardType="email-address"
               value={userInfo.email}
               placeholder="email@fulano.com.br"
-              onChangeText={(value) =>
-                setUserInfo({ ...userInfo, email: value })
-              }
+              onChangeText={handleEmailValidation}
+              // onChangeText={(value) =>
+              //   setUserInfo({ ...userInfo, email: value })
+              // }
             />
             <Fontisto
               style={{ position: "absolute", left: 26, top: 17.8 }}
@@ -121,9 +183,22 @@ export default function LoginScreen() {
               size={20}
               color={"#A1A1A1"}
             />
+            {errorMessages.email && (
+              <View style={commonStyles.errorContainer}>
+                <Entypo name="cross" size={18} color={"red"} />
+                <Text style={{ color: "red", fontSize: 11, marginTop: -1 }}>
+                  {errorMessages.email}
+                </Text>
+                {/* <Text style={styles.errorText}>
+                 */}
+              </View>
+            )}
             {required && (
               <View style={commonStyles.errorContainer}>
                 <Entypo name="cross" size={18} color={"red"} />
+                <Text style={{ color: "red", fontSize: 11, marginTop: -1 }}>
+                  {required}
+                </Text>
               </View>
             )}
             <View style={{ marginTop: 15 }}>
@@ -156,11 +231,11 @@ export default function LoginScreen() {
                 color={"#A1A1A1"}
               />
             </View>
-            {error.password && (
+            {errorMessages.password && (
               <View style={[commonStyles.errorContainer, { top: 145 }]}>
                 <Entypo name="cross" size={18} color={"red"} />
                 <Text style={{ color: "red", fontSize: 11, marginTop: -1 }}>
-                  {error.password}
+                  {errorMessages.password}
                 </Text>
               </View>
             )}
@@ -183,7 +258,6 @@ export default function LoginScreen() {
               borderRadius: 8,
               marginHorizontal: 16,
               backgroundColor: "#2467EC",
-              // marginTop: 15,
             }}
             onPress={handleSignIn}
           >
@@ -287,13 +361,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     textAlign: "right",
     fontSize: 16,
-    // marginTop: 10,
   },
   signUpRedirect: {
     flexDirection: "row",
     marginHorizontal: 16,
     justifyContent: "center",
-    // marginBottom: 20,
-    // marginTop: 20,
   },
 });
