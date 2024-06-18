@@ -8,6 +8,7 @@ import { ToastProvider } from "react-native-toast-notifications";
 
 import { Platform, View } from "react-native";
 import { Stack } from "expo-router";
+import TabsLayout from "./(tabs)/_layout";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -60,10 +61,10 @@ function RootLayoutNav() {
   return (
     <>
       <ToastProvider>
-        {isLoggedIn ? (
-          <View></View>
-        ) : (
-          <ApolloProvider client={client}>
+        <ApolloProvider client={client}>
+          {isLoggedIn ? (
+            <TabsLayout />
+          ) : (
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="index" />
               <Stack.Screen name="(routes)/welcome-intro/index" />
@@ -71,8 +72,8 @@ function RootLayoutNav() {
               <Stack.Screen name="(routes)/sign-up/index" />
               <Stack.Screen name="(routes)/forgot-password/index" />
             </Stack>
-          </ApolloProvider>
-        )}
+          )}
+        </ApolloProvider>
       </ToastProvider>
     </>
   );

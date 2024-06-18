@@ -61,6 +61,7 @@ export default function LoginScreen() {
         duration: 4000,
         animationType: "slide-in",
       });
+      router.push("/(tabs)/home");
       console.log("Login Successful: ", data);
     },
   });
@@ -138,7 +139,6 @@ export default function LoginScreen() {
       },
     }).finally(() => {
       setButtonSpinner(false);
-      router.push("/");
     });
   };
 
