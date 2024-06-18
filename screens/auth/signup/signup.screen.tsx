@@ -10,28 +10,26 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from "react-native";
-import { Fontisto, Ionicons, SimpleLineIcons } from "@expo/vector-icons";
+import {
+  Fontisto,
+  Ionicons,
+  SimpleLineIcons,
+  FontAwesome,
+  Entypo,
+} from "@expo/vector-icons";
 import { useFonts, Raleway_700Bold } from "@expo-google-fonts/raleway";
 import { Nunito_400Regular } from "@expo-google-fonts/nunito";
 import { LinearGradient } from "expo-linear-gradient";
-import { commonStyles } from "@/styles/common/common.styles";
-import { useMutation } from "@apollo/client";
-import { ApolloError } from "@apollo/client";
+import { ApolloError, useMutation } from "@apollo/client";
 import { NEW_USER } from "@/graphql/mutation/user.mutation";
-import { Entypo } from "@expo/vector-icons";
-import { FontAwesome } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { Toast } from "react-native-toast-notifications";
+import { commonStyles } from "@/styles/common/common.styles";
 
 export default function SignUpScreen() {
   const [newUser, { loading, error }] = useMutation(NEW_USER);
-
-  const [fontsLoaded] = useFonts({
-    Nunito_400Regular,
-    Raleway_700Bold,
-  });
-
+  const [fontsLoaded] = useFonts({ Nunito_400Regular, Raleway_700Bold });
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [userInfo, setUserInfo] = useState({
     name: "",
@@ -40,7 +38,7 @@ export default function SignUpScreen() {
     username: "",
     profilePicture: "https://cdn-icons-png.flaticon.com/512/9187/9187604.png",
   });
-  const [allErrors, setAllErrors] = useState({
+  const [errorMessages, setErrorMessages] = useState({
     password: "",
     email: "",
     submitError: error,
@@ -53,43 +51,44 @@ export default function SignUpScreen() {
     const passwordSixValue = /(?=.{6,})/;
 
     if (!passwordSpecialCharacters.test(password)) {
-      setAllErrors({
-        ...allErrors,
-        password: "Write at least one special character ! @ # $ & *",
+      setErrorMessages({
+        ...errorMessages,
+        password: "Digite pelo menos um caractere especial ! @ # $ & *",
       });
       setUserInfo({ ...userInfo, password: "" });
     } else if (!passwordOneNumber.test(password)) {
-      setAllErrors({
-        ...allErrors,
-        password: "Write at least one number",
+      setErrorMessages({
+        ...errorMessages,
+        password: "Digite pelo menos um número",
       });
       setUserInfo({ ...userInfo, password: "" });
     } else if (!passwordSixValue.test(password)) {
-      setAllErrors({
-        ...allErrors,
-        password: "Write at least 6 characters",
+      setErrorMessages({
+        ...errorMessages,
+        password: "Digite pelo menos 6 caracteres",
       });
       setUserInfo({ ...userInfo, password: "" });
     } else {
-      setAllErrors({
-        ...allErrors,
+      setErrorMessages({
+        ...errorMessages,
         password: "",
       });
-      setUserInfo({ ...userInfo, password: password });
+      setUserInfo({ ...userInfo, password });
     }
   };
+
   const handleEmailValidation = (value: string) => {
     const email = value;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(email)) {
-      setAllErrors({
-        ...allErrors,
-        email: "Necessário um email válido, tipo: email@email.com",
+      setErrorMessages({
+        ...errorMessages,
+        email: "Insira um email válido, por exemplo: email@email.com",
       });
     } else {
-      setAllErrors({
-        ...allErrors,
+      setErrorMessages({
+        ...errorMessages,
         email: "",
       });
     }
@@ -98,7 +97,9 @@ export default function SignUpScreen() {
 
   const handleSignIn = async () => {
     try {
-      const username = userInfo.email.toLowerCase().split("@")[0];
+      const username =
+        userInfo.email.toLowerCase().split("@")[0] +
+        Math.floor(Math.random() * 9000);
       const updatedUserInfo = { ...userInfo, username };
       setUserInfo(updatedUserInfo);
 
@@ -107,19 +108,32 @@ export default function SignUpScreen() {
           user: updatedUserInfo,
         },
       });
-      Alert.alert(
-        `Seja bem vindo ${updatedUserInfo.name}, faça login para começar.`
+
+      Toast.show(
+        `Bem-vindo(a) ${updatedUserInfo.name}, faça login para começar.`,
+        {
+          type: "success",
+          placement: "top",
+          duration: 4000,
+          animationType: "slide-in",
+        }
       );
-      router.push("/(routes)/login");
-      // router.push("/(routes)/verifyAccount");
+      setUserInfo({
+        name: "",
+        email: "",
+        password: "",
+        username: "",
+        profilePicture: "",
+      });
+
+      router.push("/login");
     } catch (error: ApolloError | any) {
-      if (error.graphQLErrors && error.graphQLErrors.length > 0) {
-        Alert.alert("Error", error.graphQLErrors[0].message);
-      } else if (error.networkError) {
-        Alert.alert("Error", "Network error. Please try again later.");
-      } else {
-        Alert.alert("Error", "An error occurred. Please try again later.");
-      }
+      Toast.show(error.graphQLErrors[0].message, {
+        type: "danger",
+        placement: "top",
+        duration: 5000,
+        animationType: "zoom-in",
+      });
     }
   };
 
@@ -134,21 +148,21 @@ export default function SignUpScreen() {
         colors={["#E5ECF9", "#F6F7F9"]}
         style={{ flex: 1, paddingTop: 20 }}
       >
-        <ScrollView>
+        <ScrollView contentContainerStyle={styles.scrollViewContent}>
           <Image
             style={styles.signInImage}
             source={require("@/assets/sign-up/sign-up.png")}
           />
           <Text style={[styles.welcomeText, { fontFamily: "Raleway_700Bold" }]}>
-            Let's get started!
+            Vamos começar!
           </Text>
           <Text style={styles.learningText}>
-            Create an account to Becodemy to get all features
+            Crie uma conta no Becodemy para acessar todas as funcionalidades.
           </Text>
           <View style={styles.inputContainer}>
-            <View>
+            <View style={{ marginBottom: 20 }}>
               <TextInput
-                style={[styles.input, { paddingLeft: 40, marginBottom: -12 }]}
+                style={[styles.input, { paddingLeft: 45, marginBottom: -12 }]}
                 keyboardType="default"
                 value={userInfo.name}
                 placeholder="Seu nome"
@@ -158,7 +172,7 @@ export default function SignUpScreen() {
                 }
               />
               <FontAwesome
-                style={{ position: "absolute", left: 26, top: 14 }}
+                style={styles.icon}
                 name="user"
                 size={20}
                 color={"#A1A1A1"}
@@ -166,11 +180,11 @@ export default function SignUpScreen() {
             </View>
             <View
               style={
-                allErrors.email ? { marginBottom: 15 } : { marginBottom: 0 }
+                errorMessages.email ? { marginBottom: 15 } : { marginBottom: 0 }
               }
             >
               <TextInput
-                style={[styles.input, { paddingLeft: 40 }]}
+                style={[styles.input, { paddingLeft: 45 }]}
                 keyboardType="email-address"
                 value={userInfo.email}
                 autoCapitalize="none"
@@ -179,119 +193,88 @@ export default function SignUpScreen() {
                 onChangeText={handleEmailValidation}
               />
               <Fontisto
-                style={{ position: "absolute", left: 26, top: 17.8 }}
+                style={styles.icon}
                 name="email"
                 size={20}
                 color={"#A1A1A1"}
               />
-              {allErrors.email && (
-                <View style={[commonStyles.errorContainer, { top: 62 }]}>
+              {errorMessages.email && (
+                <View style={commonStyles.errorContainer}>
                   <Entypo name="cross" size={18} color={"red"} />
-                  <Text style={{ color: "red", fontSize: 11, marginTop: -1 }}>
-                    {allErrors.email}
-                  </Text>
+                  <Text style={styles.errorText}>{errorMessages.email}</Text>
                 </View>
               )}
             </View>
-            <View style={{ marginTop: -10 }}>
-              <View>
-                <TextInput
-                  style={commonStyles.input}
-                  keyboardType="default"
-                  secureTextEntry={!isPasswordVisible}
-                  placeholder="********"
-                  placeholderTextColor="#a9a9a9"
-                  defaultValue=""
-                  onChangeText={handlePasswordValidation}
-                />
-                <TouchableOpacity
-                  style={styles.visibleIcon}
-                  onPress={() => setPasswordVisible(!isPasswordVisible)}
-                >
-                  {isPasswordVisible ? (
-                    <Ionicons
-                      name="eye-off-outline"
-                      size={23}
-                      color={"#747474"}
-                    />
-                  ) : (
-                    <Ionicons name="eye-outline" size={23} color={"#747474"} />
-                  )}
-                </TouchableOpacity>
-                <SimpleLineIcons
-                  style={styles.icon2}
-                  name="lock"
-                  size={20}
-                  color={"#A1A1A1"}
-                />
-              </View>
-              {allErrors.password && (
-                <View style={[commonStyles.errorContainer, { top: 70 }]}>
+            <View>
+              <TextInput
+                style={[styles.input, { paddingLeft: 45 }]}
+                keyboardType="default"
+                secureTextEntry={!isPasswordVisible}
+                placeholder="********"
+                placeholderTextColor="#a9a9a9"
+                onChangeText={handlePasswordValidation}
+              />
+              <TouchableOpacity
+                style={styles.visibleIcon}
+                onPress={() => setPasswordVisible(!isPasswordVisible)}
+              >
+                {isPasswordVisible ? (
+                  <Ionicons
+                    name="eye-off-outline"
+                    size={23}
+                    color={"#747474"}
+                  />
+                ) : (
+                  <Ionicons name="eye-outline" size={23} color={"#747474"} />
+                )}
+              </TouchableOpacity>
+              <SimpleLineIcons
+                style={styles.icon}
+                name="lock"
+                size={20}
+                color={"#A1A1A1"}
+              />
+              {errorMessages.password && (
+                <View style={commonStyles.errorContainer}>
                   <Entypo name="cross" size={18} color={"red"} />
-                  <Text style={{ color: "red", fontSize: 11, marginTop: -1 }}>
-                    {allErrors.password}
-                  </Text>
+                  <Text style={styles.errorText}>{errorMessages.password}</Text>
                 </View>
               )}
             </View>
-
             <TouchableOpacity
-              style={{
-                padding: 16,
-                borderRadius: 8,
-                marginHorizontal: 16,
-                backgroundColor:
-                  allErrors.password || allErrors.email ? "#92b2f2" : "#2467EC",
-                marginTop: 15,
-              }}
+              style={[
+                styles.signUpButton,
+                {
+                  backgroundColor:
+                    errorMessages.password || errorMessages.email
+                      ? "#92b2f2"
+                      : "#2467EC",
+                },
+              ]}
               onPress={handleSignIn}
-              disabled={allErrors.password !== "" || allErrors.email !== ""}
+              disabled={
+                errorMessages.password !== "" || errorMessages.email !== ""
+              }
             >
               {loading ? (
                 <ActivityIndicator size="small" color={"white"} />
               ) : (
-                <Text
-                  style={{
-                    color: "white",
-                    textAlign: "center",
-                    fontSize: 16,
-                    fontFamily: "Raleway_700Bold",
-                  }}
-                >
-                  Sign Up
-                </Text>
+                <Text style={styles.signUpButtonText}>Criar Conta</Text>
               )}
             </TouchableOpacity>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-                marginTop: 20,
-                gap: 10,
-              }}
-            >
-              <TouchableOpacity>
+            <View style={styles.socialButtonsContainer}>
+              <TouchableOpacity style={styles.socialButton}>
                 <FontAwesome name="google" size={30} />
               </TouchableOpacity>
-              <TouchableOpacity>
+              <TouchableOpacity style={styles.socialButton}>
                 <FontAwesome name="github" size={30} />
               </TouchableOpacity>
             </View>
-            <View style={styles.signUpRedirect}>
-              <Text style={{ fontSize: 18, fontFamily: "Raleway_600SemiBold" }}>
-                Already have an account?
-              </Text>
-              <TouchableOpacity onPress={() => router.push("/(routes)/login")}>
-                <Text
-                  style={{
-                    fontSize: 18,
-                    fontFamily: "Raleway_600SemiBold",
-                    color: "#2467EC",
-                    marginLeft: 5,
-                  }}
-                >
-                  Sign In
+            <View style={styles.signInRedirect}>
+              <Text style={styles.signInRedirectText}>Já tem uma conta?</Text>
+              <TouchableOpacity onPress={() => router.push("/login")}>
+                <Text style={[styles.signInRedirectText, styles.signInLink]}>
+                  Entrar
                 </Text>
               </TouchableOpacity>
             </View>
@@ -303,6 +286,10 @@ export default function SignUpScreen() {
 }
 
 const styles = StyleSheet.create({
+  scrollViewContent: {
+    flexGrow: 1,
+    paddingTop: 20,
+  },
   signInImage: {
     width: "60%",
     height: 250,
@@ -312,6 +299,7 @@ const styles = StyleSheet.create({
   welcomeText: {
     textAlign: "center",
     fontSize: 24,
+    fontFamily: "Raleway_700Bold",
   },
   learningText: {
     textAlign: "center",
@@ -322,37 +310,65 @@ const styles = StyleSheet.create({
   inputContainer: {
     marginHorizontal: 16,
     marginTop: 30,
-    rowGap: 30,
   },
   input: {
     height: 55,
-    marginHorizontal: 16,
+    marginVertical: 8,
+    paddingHorizontal: 45,
     borderRadius: 8,
-    paddingLeft: 35,
-    fontSize: 16,
     backgroundColor: "white",
     color: "#A1A1A1",
+    fontSize: 16,
+  },
+  icon: {
+    position: "absolute",
+    left: 16,
+    top: 25,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 11,
+    marginTop: -1,
+    marginLeft: 5,
   },
   visibleIcon: {
     position: "absolute",
-    right: 30,
-    top: 15,
+    right: 20,
+    top: 25,
   },
-  icon2: {
-    position: "absolute",
-    left: 24,
-    top: 17.8,
-    marginTop: -2,
-  },
-  forgotSection: {
+  signUpButton: {
+    padding: 16,
+    borderRadius: 8,
     marginHorizontal: 16,
-    textAlign: "right",
-    fontSize: 16,
-    // marginTop: 10,
+    marginTop: 15,
   },
-  signUpRedirect: {
+  signUpButtonText: {
+    color: "white",
+    textAlign: "center",
+    fontSize: 16,
+    fontFamily: "Raleway_700Bold",
+  },
+  socialButtonsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 20,
+    gap: 10,
+  },
+  socialButton: {
+    paddingHorizontal: 20,
+  },
+  signInRedirect: {
     flexDirection: "row",
     marginHorizontal: 16,
     justifyContent: "center",
+  },
+  signInRedirectText: {
+    fontSize: 18,
+    fontFamily: "Raleway_600SemiBold",
+  },
+  signInLink: {
+    color: "#2467EC",
+    marginLeft: 5,
   },
 });

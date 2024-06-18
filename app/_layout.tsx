@@ -4,6 +4,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import "react-native-reanimated";
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
+import { ToastProvider } from "react-native-toast-notifications";
 
 import { Platform, View } from "react-native";
 import { Stack } from "expo-router";
@@ -58,19 +59,21 @@ function RootLayoutNav() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   return (
     <>
-      {isLoggedIn ? (
-        <View></View>
-      ) : (
-        <ApolloProvider client={client}>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="index" />
-            <Stack.Screen name="(routes)/welcome-intro/index" />
-            <Stack.Screen name="(routes)/login/index" />
-            <Stack.Screen name="(routes)/sign-up/index" />
-            <Stack.Screen name="(routes)/forgot-password/index" />
-          </Stack>
-        </ApolloProvider>
-      )}
+      <ToastProvider>
+        {isLoggedIn ? (
+          <View></View>
+        ) : (
+          <ApolloProvider client={client}>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="index" />
+              <Stack.Screen name="(routes)/welcome-intro/index" />
+              <Stack.Screen name="(routes)/login/index" />
+              <Stack.Screen name="(routes)/sign-up/index" />
+              <Stack.Screen name="(routes)/forgot-password/index" />
+            </Stack>
+          </ApolloProvider>
+        )}
+      </ToastProvider>
     </>
   );
 }
