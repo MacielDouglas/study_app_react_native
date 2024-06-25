@@ -23,7 +23,7 @@ export default function OnBoardingScreen() {
       <View style={styles.firstContainer}>
         <View>
           <Image source={require("@/assets/college.png")} style={styles.logo} />
-          <Image source={require("@/assets/college.png")} style={styles.logo} />
+          {/* <Image source={require("@/assets/college.png")} style={styles.logo} /> */}
         </View>
         <View style={styles.titleWrapper}>
           {/* <Image

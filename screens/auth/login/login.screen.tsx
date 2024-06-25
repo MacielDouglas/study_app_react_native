@@ -30,9 +30,7 @@ import { useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { commonStyles } from "@/styles/common/common.styles";
 import { router } from "expo-router";
-import { useLazyQuery } from "@apollo/client";
-import { LOGIN_USER } from "@/graphql/queries/user.query";
-import { Toast } from "react-native-toast-notifications";
+import useUser from "@/hooks/auth/useUser";
 
 export default function LoginScreen() {
   let [fontsLoaded, fontError] = useFonts({
@@ -43,28 +41,7 @@ export default function LoginScreen() {
     Raleway_600SemiBold,
     Raleway_700Bold,
   });
-
-  const [loginQuery, { loading, error, data }] = useLazyQuery(LOGIN_USER, {
-    onError: (error) => {
-      console.error("ApolloError: ", error.message);
-      Toast.show(error.message, {
-        type: "danger",
-        placement: "top",
-        duration: 5000,
-        animationType: "zoom-in",
-      });
-    },
-    onCompleted: (data) => {
-      Toast.show(`Bem-vindo(a) ${data.loginUser.name}.`, {
-        type: "success",
-        placement: "top",
-        duration: 4000,
-        animationType: "slide-in",
-      });
-      router.push("/(tabs)/home");
-      console.log("Login Successful: ", data);
-    },
-  });
+  const { loading, user, loginQuery, error } = useUser();
 
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [buttonSpinner, setButtonSpinner] = useState(false);

@@ -1,14 +1,12 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import "react-native-reanimated";
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 import { ToastProvider } from "react-native-toast-notifications";
 
-import { Platform, View } from "react-native";
 import { Stack } from "expo-router";
-import TabsLayout from "./(tabs)/_layout";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -42,37 +40,24 @@ export default function RootLayout() {
   return <RootLayoutNav />;
 }
 
-const getGraphQLUri = () => {
-  if (Platform.OS === "android") {
-    return "http://10.0.2.2:8000/graphql"; // Emulador Android
-  } else {
-    return "https://receitasdecasa.vercel.app/graphql"; // Emulador iOS
-  }
-};
-
 const client = new ApolloClient({
-  uri: getGraphQLUri(),
+  uri: "http://192.168.15.184:8000/graphql",
   cache: new InMemoryCache(),
   credentials: "include",
 });
 
 function RootLayoutNav() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   return (
     <>
       <ToastProvider>
         <ApolloProvider client={client}>
-          {isLoggedIn ? (
-            <TabsLayout />
-          ) : (
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="index" />
-              <Stack.Screen name="(routes)/welcome-intro/index" />
-              <Stack.Screen name="(routes)/login/index" />
-              <Stack.Screen name="(routes)/sign-up/index" />
-              <Stack.Screen name="(routes)/forgot-password/index" />
-            </Stack>
-          )}
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="(routes)/welcome-intro/index" />
+            <Stack.Screen name="(routes)/login/index" />
+            <Stack.Screen name="(routes)/sign-up/index" />
+            <Stack.Screen name="(routes)/forgot-password/index" />
+          </Stack>
         </ApolloProvider>
       </ToastProvider>
     </>
