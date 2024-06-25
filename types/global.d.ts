@@ -6,3 +6,11 @@ type onboardingSwiperDataType = {
   sortDescription2?: string;
   image: any;
 };
+
+type User = {
+  id: string;
+  name: string;
+  username: string;
+  profilePicture: string;
+  isAdmin: boolean;
+};

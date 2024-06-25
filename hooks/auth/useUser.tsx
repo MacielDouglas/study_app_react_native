@@ -7,7 +7,7 @@ import { Toast } from "react-native-toast-notifications";
 import { router } from "expo-router";
 
 export default function useUser() {
-  const [user, setUser] = useState("");
+  const [user, setUser] = useState<User>();
   const [loginQuery, { loading, error, data }] = useLazyQuery(LOGIN_USER, {
     onError: (error) => {
       console.error("ApolloError: ", error.message);
