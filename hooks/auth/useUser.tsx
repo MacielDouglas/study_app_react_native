@@ -26,7 +26,7 @@ export default function useUser() {
         duration: 4000,
         animationType: "slide-in",
       });
-      router.push("/(tabs)/home");
+      router.push("/(tabs)");
       console.log("Login Successful: ", data);
     },
   });

@@ -7,6 +7,7 @@ import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 import { ToastProvider } from "react-native-toast-notifications";
 
 import { Stack } from "expo-router";
+import { LogBox } from "react-native";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -32,6 +33,10 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
+
+  useEffect(() => {
+    LogBox.ignoreAllLogs(true);
+  }, []);
 
   if (!loaded) {
     return null;

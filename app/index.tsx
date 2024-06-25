@@ -11,7 +11,7 @@ export default function TabsIndex() {
       {loading ? (
         <Loader />
       ) : (
-        <Redirect href={!user ? "/(routes)/onboarding" : "/(tabs)/home"} />
+        <Redirect href={!user ? "/(routes)/onboarding" : "/(tabs)"} />
       )}
     </>
   );

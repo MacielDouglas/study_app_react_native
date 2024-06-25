@@ -9,7 +9,7 @@ export default function TabsLayout() {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ color }) => {
           let iconName;
-          if (route.name === "home/index") {
+          if (route.name === "index") {
             iconName = require("@/assets/icons/home_com.png");
           } else if (route.name === "search/index") {
             iconName = require("@/assets/icons/search_com.png");
@@ -31,7 +31,7 @@ export default function TabsLayout() {
         tabBarShowLabel: false,
       })}
     >
-      <Tabs.Screen name="home/index" />
+      <Tabs.Screen name="index" />
       <Tabs.Screen name="search/index" />
       <Tabs.Screen name="recipes/index" />
       <Tabs.Screen name="profile/index" />
