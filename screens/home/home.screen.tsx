@@ -4,6 +4,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Header from "@/components/header/header";
 import SearchInput from "@/components/common/search.input";
 import HomeBannerSlider from "@/components/home/home.banner.slider";
+import AllRecipes from "@/components/recipes/all.recipes";
 
 export default function HomeScreen() {
   return (
@@ -15,6 +16,7 @@ export default function HomeScreen() {
       <ScrollView>
         <SearchInput />
         <HomeBannerSlider />
+        <AllRecipes />
       </ScrollView>
     </LinearGradient>
   );
