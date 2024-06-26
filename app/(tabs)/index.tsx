@@ -1,11 +1,5 @@
-import { Text, View } from "react-native";
+import HomeScreen from "@/screens/home/home.screen";
 
 export default function index() {
-  return (
-    <>
-      <View>
-        <Text>Home</Text>
-      </View>
-    </>
-  );
+  return <HomeScreen />;
 }

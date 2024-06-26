@@ -14,3 +14,7 @@ type User = {
   profilePicture: string;
   isAdmin: boolean;
 };
+
+type BannerDataTypes = {
+  bannerImageUrl: any;
+};

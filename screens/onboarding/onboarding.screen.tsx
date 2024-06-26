@@ -6,6 +6,7 @@ import { Nunito_400Regular, Nunito_700Bold } from "@expo-google-fonts/nunito";
 import { LinearGradient } from "expo-linear-gradient";
 import { styles } from "@/styles/onboarding/onboarding";
 import { router } from "expo-router";
+// import useUser from "@/hooks/auth/useUser";
 
 export default function OnBoardingScreen() {
   let [fontsLoaded, fontError] = useFonts({
@@ -14,6 +15,8 @@ export default function OnBoardingScreen() {
     Nunito_700Bold,
   });
   if (!fontsLoaded && !fontError) return null;
+
+  // const { user } = useUser();
 
   return (
     <LinearGradient
@@ -54,6 +57,9 @@ export default function OnBoardingScreen() {
           <Text style={[styles.dscpText, { fontFamily: "Nunito_400Regular" }]}>
             video, quizzes & assignment.
           </Text>
+          {/* <Text style={[styles.dscpText, { fontFamily: "Nunito_400Regular" }]}>
+            {user ? user?.username : "TEm não"}
+          </Text> */}
         </View>
         <TouchableOpacity
           style={styles.buttonWrapper}

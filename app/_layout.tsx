@@ -54,8 +54,8 @@ const client = new ApolloClient({
 function RootLayoutNav() {
   return (
     <>
-      <ToastProvider>
-        <ApolloProvider client={client}>
+      <ApolloProvider client={client}>
+        <ToastProvider>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="index" />
             <Stack.Screen name="(routes)/welcome-intro/index" />
@@ -63,8 +63,8 @@ function RootLayoutNav() {
             <Stack.Screen name="(routes)/sign-up/index" />
             <Stack.Screen name="(routes)/forgot-password/index" />
           </Stack>
-        </ApolloProvider>
-      </ToastProvider>
+        </ToastProvider>
+      </ApolloProvider>
     </>
   );
 }
