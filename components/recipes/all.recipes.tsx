@@ -32,7 +32,8 @@ export default function AllRecipes() {
   const flatListRef = useRef(null);
   if (loading) return <ActivityIndicator />;
   if (error) return <Text>Error: {error.message}</Text>;
-  console.log("Receitas: ", data.getRecipes);
+
+  console.log(data.getRecipes);
 
   if (!fontError && !fontsLoaded) return null;
   return (

@@ -12,7 +12,6 @@ import {
 import { router } from "expo-router";
 
 export default function RecipeCard({ item }: { item: RecipeType }) {
-  console.log("ITEM: ", item.image);
   return (
     <TouchableOpacity
       style={styles.container}
@@ -67,9 +66,8 @@ export default function RecipeCard({ item }: { item: RecipeType }) {
             }}
           >
             <FontAwesome name="star" size={14} color={"#ffb800"} />
-            <Text style={[styles.ratingText]}>{item?.ratings}</Text>
           </View>
-          <Text>{item.category} </Text>
+          <Text>{item.category}</Text>
         </View>
         <View
           style={{
@@ -81,19 +79,9 @@ export default function RecipeCard({ item }: { item: RecipeType }) {
         >
           <View style={{ flexDirection: "row" }}>
             <Text style={{ paddingTop: 10, fontSize: 14 }}>
-              <FontAwesome5 name="clock" size={14} color="black" /> Tempo
-              {item?.price}
+              <FontAwesome5 name="clock" size={14} color="black" /> Tempo{" "}
+              {item.time[0] !== "0" ? `${item.time} hs` : `${item.time} min`}
             </Text>
-            {/* <Text
-              style={{
-                paddingLeft: 5,
-                textDecorationLine: "line-through",
-                fontSize: 16,
-                fontWeight: "400",
-              }}
-            >
-              $ tempo{item?.estimatedPrice}
-            </Text> */}
           </View>
           <View
             style={{

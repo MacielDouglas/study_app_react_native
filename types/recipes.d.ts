@@ -1,22 +1,23 @@
 type RecipeType = {
-  id: string;
   category: string;
   content: string;
+  description: string;
+  difficult: string;
+  id: string;
   image: string;
-  ingredients: [string];
+  ingredients: string[];
   slug: string;
   title: string;
+  time: string;
+  userId: string;
   writer: string;
-  // user: User;
-  // question: string;
-  // questionReplies: CommentType[];
+  ratings: ReviewType[];
+  createdAt: string;
 };
 
 type ReviewType = {
-  user: User;
-  rating?: number;
+  rating: number;
   comment: string;
-  commentReplies?: ReviewType[];
 };
 
 type LinkType = {
