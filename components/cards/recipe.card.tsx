@@ -17,7 +17,7 @@ export default function RecipeCard({ item }: { item: RecipeType }) {
       style={styles.container}
       onPress={() =>
         router.push({
-          pathname: "/(routes)/course-details",
+          pathname: "/(routes)/recipe-details",
           params: { item: JSON.stringify(item) },
         })
       }
