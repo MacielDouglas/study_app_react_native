@@ -11,3 +11,12 @@ export const LOGIN_USER = gql`
     }
   }
 `;
+
+export const ONE_USER = gql`
+  query oneUser($getUserId: ID!) {
+    getUser(id: $getUserId) {
+      username
+      profilePicture
+    }
+  }
+`;

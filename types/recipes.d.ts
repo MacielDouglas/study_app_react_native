@@ -18,6 +18,7 @@ type RecipeType = {
 type ReviewType = {
   rating: number;
   comment: string;
+  userId: string;
 };
 
 type LinkType = {

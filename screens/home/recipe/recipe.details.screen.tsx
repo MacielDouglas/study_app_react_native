@@ -1,3 +1,4 @@
+import ReviewCard from "@/components/cards/review.card";
 import {
   Nunito_400Regular,
   Nunito_500Medium,
@@ -37,12 +38,9 @@ export default function RecipeDetailsScreen() {
   const [isExpanded, setIsExpanded] = useState(false);
   const recipeData: RecipeType = JSON.parse(item as string);
   const [checkPurchased, setCheckPurchased] = useState(false);
-  //   const ratingsData: ReviewType = JSON.parse(item.recipeData.ratings as string);
-  //4'01''49''
-  console.log(item);
 
   if (!fontsLoaded && !fontError) return null;
-  console.log("RECIPE_DATA=S: ", recipeData.ratings[0]?.rating);
+
   return (
     <LinearGradient
       colors={["#E5ECF9", "#F6F7F9"]}
@@ -266,11 +264,13 @@ export default function RecipeDetailsScreen() {
         {activeButton === "Reviews" && (
           <View style={{ marginHorizontal: 16, marginVertical: 25 }}>
             <View style={{ rowGap: 25 }}>
-              {/* {recipeData?.ratings?.map(
-              (item: ReviewType, index: number) => (
-                <ReviewCard item={item} key={index} />
-              )
-            )} */}
+              {recipeData.ratings.length !== 0 ? (
+                recipeData?.ratings?.map((item: ReviewType, index: number) => (
+                  <ReviewCard item={item} key={index} />
+                ))
+              ) : (
+                <Text style={{ fontSize: 16 }}>Sem comentários.</Text>
+              )}
             </View>
           </View>
         )}
@@ -383,7 +383,7 @@ export default function RecipeDetailsScreen() {
                 fontFamily: "Nunito_600SemiBold",
               }}
             >
-              Add to cart
+              Adicionar comentário
             </Text>
           </TouchableOpacity>
         )}

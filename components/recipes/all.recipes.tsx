@@ -33,8 +33,6 @@ export default function AllRecipes() {
   if (loading) return <ActivityIndicator />;
   if (error) return <Text>Error: {error.message}</Text>;
 
-  console.log(data.getRecipes);
-
   if (!fontError && !fontsLoaded) return null;
   return (
     <View style={{ flex: 1, marginHorizontal: 16, marginTop: 30 }}>
@@ -57,11 +55,6 @@ export default function AllRecipes() {
             Veja mais
           </Text>
         </TouchableOpacity>
-        {/* <View style={{ justifyContent: "center", alignItems: "center" }}>
-          {data.getRecipes.map((recipe: { id: string; title: string }) => (
-            <Text key={recipe.id}>{recipe.title}</Text>
-          ))}
-        </View> */}
       </View>
       <FlatList
         ref={flatListRef}
