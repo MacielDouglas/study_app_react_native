@@ -29,11 +29,13 @@ export default function RecipeScreen() {
   const [recipes, setRecipes] = useState<RecipeType[]>([]);
   const [filterRecipes, setFilterRecipes] = useState<RecipeType[]>([]);
   const [activeCategory, setActiveCategory] = useState("All");
-
   const { data, loading, error } = useQuery(ALL_RECIPES);
 
   useEffect(() => {
-    if (data) setRecipes(data.getRecipes);
+    if (data) {
+      setRecipes(data.getRecipes);
+      setFilterRecipes(data.getRecipes);
+    }
   }, [loading, data]);
 
   const uniqueCategories = [...new Set(recipes.map((item) => item.category))];
@@ -50,8 +52,6 @@ export default function RecipeScreen() {
       setFilterRecipes(filterRecipes);
     }
   };
-
-  console.log(uniqueCategories);
 
   return (
     <>

@@ -13,8 +13,11 @@ export default function HomeScreen() {
       style={{ flex: 1, paddingTop: 50 }}
     >
       <Header />
-      <ScrollView nestedScrollEnabled={true}>
-        <SearchInput />
+      <SearchInput homeScreen={true} />
+      <ScrollView
+        nestedScrollEnabled={true}
+        showsVerticalScrollIndicator={false}
+      >
         <HomeBannerSlider />
         <AllRecipes />
       </ScrollView>
