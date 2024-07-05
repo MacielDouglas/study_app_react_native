@@ -1,10 +1,5 @@
-import { View, Text } from "react-native";
-import React from "react";
+import RecipeScreen from "@/screens/recipes/recipes.screen";
 
 export default function Recipes() {
-  return (
-    <View>
-      <Text>Recipes</Text>
-    </View>
-  );
+  return <RecipeScreen />;
 }
