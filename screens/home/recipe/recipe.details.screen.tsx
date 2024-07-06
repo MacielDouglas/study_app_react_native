@@ -1,4 +1,6 @@
 import ReviewCard from "@/components/cards/review.card";
+import { NEW_COMMENT } from "@/graphql/mutation/recipe.quety";
+import { ApolloError, useMutation } from "@apollo/client";
 import {
   Nunito_400Regular,
   Nunito_500Medium,
@@ -20,7 +22,17 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { View, Text, ScrollView, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  TextInput,
+  StyleSheet,
+} from "react-native";
+import { widthPercentageToDP } from "react-native-responsive-screen";
+import { Toast } from "react-native-toast-notifications";
 
 export default function RecipeDetailsScreen() {
   const { item } = useLocalSearchParams();
@@ -38,6 +50,54 @@ export default function RecipeDetailsScreen() {
   const [isExpanded, setIsExpanded] = useState(false);
   const recipeData: RecipeType = JSON.parse(item as string);
   const [checkPurchased, setCheckPurchased] = useState(false);
+  const [comment, setComment] = useState("");
+  const [newRating, { loading, error }] = useMutation(NEW_COMMENT);
+  const [rating, setRating] = useState(0);
+
+  const renderStars = () => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <TouchableOpacity key={i} onPress={() => setRating(i)}>
+          <FontAwesome
+            name={i <= rating ? "star" : "star-o"}
+            size={25}
+            color={"#FF8D07"}
+            style={{ marginHorizontal: 4, marginTop: -6 }}
+          />
+        </TouchableOpacity>
+      );
+    }
+    return stars;
+  };
+
+  const handleSubmit = async () => {
+    try {
+      await newRating({
+        variables: {
+          newRating: {
+            comment: comment,
+            recipeId: recipeData.id,
+            score: rating,
+          },
+        },
+      });
+
+      Toast.show(`Comentário adicionado com sucesso.`, {
+        type: "success",
+        placement: "top",
+        duration: 4000,
+        animationType: "slide-in",
+      });
+    } catch (error: ApolloError | any) {
+      Toast.show(error.graphQLErrors[0].message, {
+        type: "danger",
+        placement: "top",
+        duration: 5000,
+        animationType: "zoom-in",
+      });
+    }
+  };
 
   if (!fontsLoaded && !fontError) return null;
 
@@ -177,7 +237,7 @@ export default function RecipeDetailsScreen() {
           <Text
             style={{ fontSize: 18, fontWeight: "400", textAlign: "justify" }}
           >
-            {recipeData.content}
+            {recipeData.content.split(". ").join(".\n\n")}
           </Text>
           {/* {recipeData?.content.map((item, index: number) => (
             <View
@@ -263,6 +323,58 @@ export default function RecipeDetailsScreen() {
         </View>
         {activeButton === "Reviews" && (
           <View style={{ marginHorizontal: 16, marginVertical: 25 }}>
+            <View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginBottom: -10,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 18,
+                    paddingBottom: 10,
+                    paddingLeft: 2,
+                    paddingRight: 5,
+                  }}
+                >
+                  Adicione uma nota:
+                </Text>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  {renderStars()}
+                </View>
+              </View>
+              <TextInput
+                placeholder="Deixe seu comentário..."
+                value={comment}
+                onChangeText={setComment}
+                style={{
+                  marginVertical: 20,
+                  flex: 1,
+                  textAlignVertical: "top",
+                  justifyContent: "flex-start",
+                  backgroundColor: "white",
+                  height: 120,
+                  padding: 10,
+                  borderRadius: 10,
+                }}
+                multiline={true}
+              />
+              <View style={{ flexDirection: "row", justifyContent: "center" }}>
+                <TouchableOpacity
+                  style={[styles.button]}
+                  disabled={comment === ""}
+                  onPress={() => handleSubmit()}
+                >
+                  <Text
+                    style={{ color: "#fff", fontSize: 18, fontWeight: "600" }}
+                  >
+                    Enviar
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
             <View style={{ rowGap: 25 }}>
               {recipeData.ratings.length !== 0 ? (
                 recipeData?.ratings?.map((item: ReviewType, index: number) => (
@@ -391,3 +503,15 @@ export default function RecipeDetailsScreen() {
     </LinearGradient>
   );
 }
+
+const styles = StyleSheet.create({
+  button: {
+    width: widthPercentageToDP("35%"),
+    height: 40,
+    backgroundColor: "#2467EC",
+    marginVertical: 10,
+    borderRadius: 40,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});

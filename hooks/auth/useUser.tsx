@@ -32,8 +32,8 @@ export default function useUser() {
     },
   });
 
-  // const eliminado = AsyncStorage.removeItem("access_user");
-  // console.log("Eliminado", eliminado);
+  const eliminado = AsyncStorage.removeItem("access_user");
+  console.log("Eliminado", eliminado);
 
   useEffect(() => {
     const fetchUserData = async () => {
