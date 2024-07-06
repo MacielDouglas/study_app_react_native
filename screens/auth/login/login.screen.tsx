@@ -135,7 +135,7 @@ export default function LoginScreen() {
           Welcome Back!
         </Text>
         <Text style={styles.learningText}>
-          Login to your existing account of Becodemy
+          Login to your existing account of Recipeydemy
         </Text>
         <View style={styles.inputContainer}>
           <View style={{ marginBottom: 10 }}>

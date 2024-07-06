@@ -157,7 +157,7 @@ export default function SignUpScreen() {
             Vamos começar!
           </Text>
           <Text style={styles.learningText}>
-            Crie uma conta no Becodemy para acessar todas as funcionalidades.
+            Crie uma conta no Recipeydemy para acessar todas as funcionalidades.
           </Text>
           <View style={styles.inputContainer}>
             <View style={{ marginBottom: 20 }}>
